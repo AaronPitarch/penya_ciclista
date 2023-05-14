@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "566699516882",
+    "project_id": "penyaciclista-64b07",
+    "storage_bucket": "penyaciclista-64b07.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:566699516882:android:11c38b7f51d97e22a7de0b",
+        "android_client_info": {
+          "package_name": "com.example.penya_ciclista"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "566699516882-ng420guvbt4g8124ga88n5djuvo95u44.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcA9dkMrqLVutDJGLUlHyuEwbNsId-IjE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "566699516882-ng420guvbt4g8124ga88n5djuvo95u44.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "566699516882-6r4tsjl4e0d6t8d28121bjdvhch56dv0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.penyaCiclista.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
