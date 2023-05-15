@@ -32,7 +32,7 @@ class _RegisterPageState extends State<RegisterPage> {
         _emailController.clear();
         _passwordController.clear();
 
-        Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pop(context);
       }
 
     } catch (e) {
