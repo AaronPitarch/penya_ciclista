@@ -1,24 +1,19 @@
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class GaleriaService {
-  final Reference storageReference = FirebaseStorage.instance.ref().child('imagenes');
+  final firebase_storage.FirebaseStorage _storage =
+      firebase_storage.FirebaseStorage.instance;
 
   Future<List<String>> obtenerImagenes() async {
-    List<String> listaImagenes = [];
+    final ref = _storage.ref().child('imagenes');
+    final result = await ref.listAll();
+    final imageUrls = <String>[];
 
-    try {
-      final ListResult listResult = await storageReference.listAll();
-      final List<Reference> imageRef = listResult.items;
-
-      for (final ref in imageRef) {
-        final imageUrl = await ref.getDownloadURL();
-        listaImagenes.add(imageUrl);
-      }
-
-    } catch (e) {
-      print('Error al obtener las imagenes: $e');
+    for (final item in result.items) {
+      final url = await item.getDownloadURL();
+      imageUrls.add(url);
     }
 
-    return listaImagenes;
+    return imageUrls;
   }
 }

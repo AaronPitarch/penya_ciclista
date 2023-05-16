@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:penya_ciclista/services/galeria_service.dart';
 
 class GaleriaPage extends StatefulWidget {
   const GaleriaPage({super.key});
@@ -16,7 +17,15 @@ class GaleriaPage extends StatefulWidget {
 class _GaleriaPageState extends State<GaleriaPage> {
 
   final ImagePicker _imagePicker = ImagePicker();
+  final GaleriaService _galeriaService = GaleriaService();
+  List<String> _imageUrls = [];
   final firebase_storage.FirebaseStorage _storage = firebase_storage.FirebaseStorage.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarImagenes();
+  }
 
   Future<void> _mostrarDialogoGuardarImagen(String imagePath) async {
     return showDialog<void>(
@@ -77,6 +86,13 @@ class _GaleriaPageState extends State<GaleriaPage> {
     }
   }
 
+  Future<void> _cargarImagenes() async {
+    final imageUrls = await _galeriaService.obtenerImagenes();
+    setState(() {
+      _imageUrls = imageUrls;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,7 +101,16 @@ class _GaleriaPageState extends State<GaleriaPage> {
         centerTitle: true,
       ),
 
-
+      body: GridView.builder(
+        itemCount: _imageUrls.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+        ),
+        itemBuilder: (context, index) {
+          final imageUrl = _imageUrls[index];
+          return Image.network(imageUrl);
+        },
+      ),
 
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
