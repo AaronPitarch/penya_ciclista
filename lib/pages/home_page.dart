@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
+
 import 'package:penya_ciclista/drawer/drawer_content.dart';
 import 'package:penya_ciclista/models/noticias_model.dart';
+import 'package:penya_ciclista/pages/detalleNoticia_page.dart';
 import 'package:penya_ciclista/services/noticias_service.dart';
 
 class HomePage extends StatelessWidget {
@@ -21,15 +24,21 @@ class HomePage extends StatelessWidget {
             return ListView.builder(
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
-                return Card(
-                  child: Column(
-                    children: [
-                      Image.network(snapshot.data![index].imagen),
-                      ListTile(
-                        title: Text(snapshot.data![index].titulo),
-                        //subtitle: Text(snapshot.data![index].descripcion),
+                return GestureDetector(
+                  onTap: () {
+                    // Navegar a la pantalla de la noticia completa y pasar los detalles de la noticia
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (context) => DetalleNoticiaPage(noticia: snapshot.data![index]),
                       ),
-                    ],
+                    );
+                  },
+                  child: Card(
+                    child: Column(
+                      children: [
+                        Image.network(snapshot.data![index].imagen),
+                        ListTile(title: Text(snapshot.data![index].titulo)),
+                      ],
+                    ),
                   ),
                 );
               },
