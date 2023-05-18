@@ -14,7 +14,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: const DrawerContent(),
+      drawer: DrawerContent(),
       appBar: AppBar(),
 
       body: FutureBuilder<List<Noticia>>(

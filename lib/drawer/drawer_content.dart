@@ -1,11 +1,56 @@
 import 'package:flutter/material.dart';
+
 import 'package:penya_ciclista/drawer/drawer_item.dart';
+import 'package:penya_ciclista/pages/configuraciones_page.dart';
 import 'package:penya_ciclista/pages/galeria_page.dart';
+import 'package:penya_ciclista/pages/login_page.dart';
 import 'package:penya_ciclista/pages/rutas_page.dart';
 import 'package:penya_ciclista/pages/usuarios_page.dart';
 
-class DrawerContent extends StatelessWidget {
-  const DrawerContent({super.key});
+// Importaciones de Firebase
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class DrawerContent extends StatefulWidget {
+  DrawerContent({Key? key}) : super(key: key);
+
+  @override
+  State<DrawerContent> createState() => _DrawerContentState();
+}
+
+class _DrawerContentState extends State<DrawerContent> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  String name = '';
+  String email = '';
+  String imageUrl = '';
+
+  @override
+  void initState() {
+    super.initState();
+    loadUserData();
+  }
+
+  void loadUserData() async {
+    final user = _auth.currentUser;
+
+    if (user != null) {
+      name = user.displayName ?? '';
+      email = user.email ?? '';
+
+      final doc = await _firestore.collection('usuarios').doc(user.uid).get(); // Espera a que se obtenga el documento
+
+      if (doc.exists) {
+        setState(() {
+          imageUrl = doc.data()?['image'] ?? '';
+          name = doc.data()?['name'] ?? '';
+        });
+      }
+
+      setState(() {}); // Actualiza el estado después de obtener los datos
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +63,9 @@ class DrawerContent extends StatelessWidget {
             children: [
               headerWidget(),
               const SizedBox(height: 40,),
+
               const Divider(thickness: 1, height: 10, color: Colors.grey),
+
               const SizedBox(height: 40,),
               DrawerItem(
                 name: 'Usuarios',
@@ -49,6 +96,7 @@ class DrawerContent extends StatelessWidget {
 
               const SizedBox(height: 30,),
               const Divider(thickness: 1, height: 10, color: Colors.grey,),
+
               const SizedBox(height: 30,),
               DrawerItem(
                 name: 'Configuraciones',
@@ -82,28 +130,59 @@ class DrawerContent extends StatelessWidget {
       case 2:
         Navigator.push(context, MaterialPageRoute(builder: ((context) => const GaleriaPage())));
         break;
+      case 4:
+        Navigator.push(context, MaterialPageRoute(builder: ((context) => const ConfiguracionesPage())));
+        break;
+      case 5:
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Cerrar sesión'),
+              content: const Text('¿Estás seguro de que deseas cerrar sesión?'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); 
+                    _auth.signOut(); // Cerrar sesión
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage())); // Volver a la página de inicio de sesión
+                  },  
+                  child: const Text('Sí'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); 
+                  },
+                  child: const Text('Cancelar'),
+                ),
+              ],
+            );
+          },
+        );
+        break;
+      }
     }
-  }
 
   Widget headerWidget() {
-    const url = 'https://img.freepik.com/vector-premium/dibujos-animados-cara-nino-lindo_18591-41509.jpg';
-
-    return const Row(
+    return Row(
       children: [
         CircleAvatar(
           radius: 40,
-          backgroundImage: NetworkImage(url),
+          backgroundImage: imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
         ),
 
-        SizedBox(width: 20,),
+        const SizedBox(width: 20),
+
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Nombre usuario', style: TextStyle(fontSize: 14, color: Colors.white)),
-            SizedBox(height: 10,),
-            Text('correo@gmail.com', style: TextStyle(fontSize: 14, color: Colors.white))
+            Text(name, style: const TextStyle(fontSize: 14, color: Colors.white)),
+
+            const SizedBox(height: 10),
+
+            Text(email, style: const TextStyle(fontSize: 14, color: Colors.white)),
           ],
-        )
+        ),
       ],
     );
   }
