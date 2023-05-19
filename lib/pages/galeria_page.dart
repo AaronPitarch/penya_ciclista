@@ -96,6 +96,29 @@ class _GaleriaPageState extends State<GaleriaPage> {
     });
   }
 
+  void _mostrarImagenAmpliada(String imageUrl) {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: CachedNetworkImage(
+            imageUrl: imageUrl,
+            placeholder: (context, url) => const CircularProgressIndicator(),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cerrar'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -109,10 +132,15 @@ class _GaleriaPageState extends State<GaleriaPage> {
         itemCount: _imageUrls.length,
         itemBuilder: (BuildContext context, int index) {
           final imageUrl = _imageUrls[index];
-          return CachedNetworkImage(
-            imageUrl: imageUrl,
-            placeholder: (context, url) => const CircularProgressIndicator(),
-            errorWidget: (context, url, error) => const Icon(Icons.error),
+          return GestureDetector(
+            onTap: () {
+              _mostrarImagenAmpliada(imageUrl);
+            },
+            child: CachedNetworkImage(
+              imageUrl: imageUrl,
+              placeholder: (context, url) => const CircularProgressIndicator(),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
+            ),
           );
         },
         staggeredTileBuilder: (int index) => StaggeredTile.fit(1),
