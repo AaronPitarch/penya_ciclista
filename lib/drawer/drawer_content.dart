@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:penya_ciclista/drawer/drawer_item.dart';
+import 'package:penya_ciclista/models/user_model.dart';
 import 'package:penya_ciclista/pages/configuraciones_page.dart';
 import 'package:penya_ciclista/pages/galeria_page.dart';
 import 'package:penya_ciclista/pages/login_page.dart';

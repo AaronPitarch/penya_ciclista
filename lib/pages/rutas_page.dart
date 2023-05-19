@@ -72,9 +72,21 @@ class RutasPage extends StatelessWidget {
                         // Fila 4
                         Row(
                           children: [
-                            const Text('ALTERNATIU:', style: TextStyle(fontWeight: FontWeight.bold)),
+                            Expanded(
+                              child: Text('KM: ${ruta.kilometros}'),
+                            ),
+
                             const SizedBox(width: 16),
-                            Text(ruta.alternativo),
+              
+                            Expanded(
+                              child: Text('DESNIVELL: ${ruta.desnivel}'), 
+                            ),
+
+                            const SizedBox(width: 16),
+                        
+                            Expanded(
+                              child: Text('PUNTOS: ${ruta.puntos}'),
+                            ),
                           ],
                         ),
                         // Fila 5

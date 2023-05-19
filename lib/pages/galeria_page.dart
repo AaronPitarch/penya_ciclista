@@ -1,8 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:grid_staggered_lite/grid_staggered_lite.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
+import 'package:cached_network_image/cached_network_image.dart';
+//import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:penya_ciclista/services/galeria_service.dart';
@@ -101,15 +104,20 @@ class _GaleriaPageState extends State<GaleriaPage> {
         centerTitle: true,
       ),
 
-      body: GridView.builder(
+      body: StaggeredGridView.countBuilder(
+        crossAxisCount: 2,
         itemCount: _imageUrls.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-        ),
-        itemBuilder: (context, index) {
+        itemBuilder: (BuildContext context, int index) {
           final imageUrl = _imageUrls[index];
-          return Image.network(imageUrl);
+          return CachedNetworkImage(
+            imageUrl: imageUrl,
+            placeholder: (context, url) => const CircularProgressIndicator(),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
+          );
         },
+        staggeredTileBuilder: (int index) => StaggeredTile.fit(1),
+        mainAxisSpacing: 4.0,
+        crossAxisSpacing: 4.0,
       ),
 
       floatingActionButton: FloatingActionButton(
