@@ -8,6 +8,7 @@ import 'package:penya_ciclista/services/noticias_service.dart';
 
 // Importaciones de firebase
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomePage extends StatelessWidget {
   HomePage({super.key});
@@ -23,14 +24,7 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       drawer: DrawerContent(),
       appBar: AppBar(
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: CircleAvatar(
-              backgroundImage: imageUrl != null ? NetworkImage(imageUrl) : null,
-            ),
-          ),
-        ],
+        
       ),
 
       body: FutureBuilder<List<Noticia>>(

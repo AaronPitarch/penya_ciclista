@@ -44,8 +44,8 @@ class _DrawerContentState extends State<DrawerContent> {
 
       if (doc.exists) {
         setState(() {
-          imageUrl = doc.data()?['image'] ?? '';
-          name = doc.data()?['name'] ?? '';
+          imageUrl = doc.data()?['imagen'] ?? '';
+          name = doc.data()?['nombre'] ?? '';
         });
       }
 
@@ -101,7 +101,7 @@ class _DrawerContentState extends State<DrawerContent> {
               const SizedBox(height: 30,),
               const SizedBox(height: 30,),
               const SizedBox(height: 30,),
-              
+
               const Divider(thickness: 1, height: 10, color: Colors.grey,),
 
               const SizedBox(height: 30,),

@@ -2,11 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:penya_ciclista/pages/home_page.dart';
+import 'package:penya_ciclista/services/usuarios_service.dart';
 
 // Importaciones Firebase
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:penya_ciclista/pages/home_page.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 
 class RegisterPage extends StatefulWidget {
@@ -24,74 +26,107 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passwordController = TextEditingController();
   String? _imagePath;
 
-  void _registerUser() async {
-  try {
-    if (_formKey.currentState!.validate()) {
-      // Accede al servicio de autenticación de Firebase
-      FirebaseAuth _auth = FirebaseAuth.instance;
+  Future<void> _registerUser() async {
+    try {
+      if (_formKey.currentState!.validate()) {
+          // Accede al servicio de autenticación de Firebase
+          FirebaseAuth _auth = FirebaseAuth.instance;
 
-      // Crea un nuevo usuario con correo y contraseña
-      final UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
+          // Crea un nuevo usuario con correo y contraseña
+          final UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+          );
 
-      // Guarda nombre, imagen y puntos en la base de datos
-      final user = userCredential.user;
-      if (user != null) {
-        await FirebaseFirestore.instance
-            .collection('usuarios')
-            .doc(user.uid)
-            .set({
-          'nombre': _nameController.text.trim(),
-          'imagen': _imagePath, 
-          'puntos': 0,
-        });
+          // Guarda nombre, puntos en la base de datos
+          final user = userCredential.user;
+          if (user != null) {
+            await FirebaseFirestore.instance.collection('usuarios').doc(user.uid).set({
+              'nombre': _nameController.text.trim(),
+              'puntos': 0,
+            });
+
+            // Si se seleccionó una imagen, sube la imagen a Firebase Storage
+            if (_imagePath != null) {
+              String imagePath = await ImageUploadService.uploadImageToStorage(_imagePath!, user.uid);
+              await FirebaseFirestore.instance.collection('usuarios').doc(user.uid).update({
+                'imagen': imagePath,
+              });
+            }
+          }
+
+          _emailController.clear();
+          _passwordController.clear();
+
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()));
+
+        } else {
+          // Muestra un SnackBar persistente con un botón de acción
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Por favor, completa todos los campos'),
+              action: SnackBarAction(
+                label: 'Cerrar',
+                onPressed: () {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                },
+              ),
+            ),
+          );
+        }
+      } catch (e) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: Text(e.toString()),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
       }
+    }
+/*
+    Future<String> _uploadImageToStorage(String imagePath, String userId) async {
+      try {
+        File imageFile = File(imagePath);
+      String fileName = 'user_images/$userId.jpg';
 
-      _emailController.clear();
-      _passwordController.clear();
+      firebase_storage.Reference storageRef = firebase_storage.FirebaseStorage.instance.ref().child(fileName);
+    firebase_storage.UploadTask uploadTask = storageRef.putFile(imageFile);
+    firebase_storage.TaskSnapshot snapshot = await uploadTask;
+    String downloadURL = await snapshot.ref.getDownloadURL();
 
-      Navigator.pushReplacement(context, MaterialPageRoute(
-          builder: (context) => HomePage()),
-      );
+    return downloadURL;
 
-    } else {
-      // Muestra un SnackBar persistente con un botón de acción
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Por favor, completa todos los campos'),
-          //duration: const Duration(days: 1), // Duración larga para que el SnackBar sea persistente
-          action: SnackBarAction(
-            label: 'Cerrar',
-            onPressed: () {
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            },
-          ),
-        ),
+      } catch (e) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: Text(e.toString()),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
       );
     }
-
-  } catch (e) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Error'),
-          content: Text(e.toString()),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
+  }*/
 
   // Abrir la galeria o la camara para foto de usuario
   Future<void> _selectImage() async {
