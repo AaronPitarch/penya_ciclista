@@ -143,7 +143,7 @@ class _GaleriaPageState extends State<GaleriaPage> {
             ),
           );
         },
-        staggeredTileBuilder: (int index) => StaggeredTile.fit(1),
+        staggeredTileBuilder: (int index) => const StaggeredTile.fit(1),
         mainAxisSpacing: 4.0,
         crossAxisSpacing: 4.0,
       ),

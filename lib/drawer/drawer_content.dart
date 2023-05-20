@@ -89,13 +89,19 @@ class _DrawerContentState extends State<DrawerContent> {
               ),
 
               const SizedBox(height: 30,),
+              /*
               DrawerItem(
                 name: 'Noticias',
                 icon: Icons.notifications,
                 onPressed: () => onItemPressed(context, index: 3),
               ),
+              */
 
               const SizedBox(height: 30,),
+              const SizedBox(height: 30,),
+              const SizedBox(height: 30,),
+              const SizedBox(height: 30,),
+              
               const Divider(thickness: 1, height: 10, color: Colors.grey,),
 
               const SizedBox(height: 30,),

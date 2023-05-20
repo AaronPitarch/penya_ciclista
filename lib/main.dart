@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:penya_ciclista/pages/home_page.dart';
 import 'package:penya_ciclista/pages/login_page.dart';
@@ -11,6 +12,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Configuración de Firestore
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true, // Opcional, activa la persistencia offline
   );
 
   runApp(const MyApp());
