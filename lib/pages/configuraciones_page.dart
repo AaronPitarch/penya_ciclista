@@ -16,13 +16,20 @@ class ConfiguracionesPage extends StatefulWidget {
 class _ConfiguracionesPageState extends State<ConfiguracionesPage> {
 
   TextEditingController _nameController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
   String _imageURL = '';
+
+  String defaultName = 'Usuario';
+  String defaultImageUrl = 'URL de la imagen predeterminada';
+
 
   @override
   void initState() {
     super.initState();
-    getUserData(); // Se obtiene los datos del usuario con la sesion iniciada
-  }
+    _nameController.text = defaultName;
+    _passwordController.text = ''; // Obtén la contraseña actual del usuario y establece su valor en el controlador de texto
+    getUserData();
+  } 
 
   void getUserData() async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -39,12 +46,69 @@ class _ConfiguracionesPageState extends State<ConfiguracionesPage> {
       if (snapshot.exists) {
         Map<String, dynamic> data = snapshot.data()!;
         setState(() {
-          _imageURL = data['imageURL'] ?? '';
+          _imageURL = data['imagen'] ?? defaultImageUrl; // Establece la URL predeterminada si la URL de la imagen está vacía
         });
       }
     }
   }
 
+  void updateProfile() async {
+  User? user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    try {
+      String newName = _nameController.text;
+      String newPassword = _passwordController.text;
+
+      if (newName.isNotEmpty) {
+        await user.updateDisplayName(newName);
+        await FirebaseFirestore.instance.collection('usuarios').doc(user.uid).update({
+          'nombre': newName,
+        });
+      }
+
+      if (newPassword.isNotEmpty) {
+        await user.updatePassword(newPassword);
+      }
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Datos actualizados'),
+            content: Text('Se han actualizado los datos del perfil correctamente.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Aceptar'),
+              ),
+            ],
+          );
+        },
+      );
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Hubo un error al actualizar los datos del perfil.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Aceptar'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+}
+/*
   void updateUserName() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -57,44 +121,55 @@ class _ConfiguracionesPageState extends State<ConfiguracionesPage> {
           'nombre': newName,
         });
 
-        print('Nombre actualizado exitosamente');
+        //print('Nombre actualizado exitosamente');
       } catch (e) {
-        print('Error al actualizar el nombre: $e');
+        //print('Error al actualizar el nombre: $e');
       }
     }
-  }
+  }*/
 
   void updateUserImage() async {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
-      String userId = user.uid;
-      Reference storageRef = FirebaseStorage.instance.ref().child('user_images/$userId.jpg');
+      final picker = ImagePicker();
+      PickedFile? pickedFile = await picker.getImage(source: ImageSource.gallery);
 
-      try {
-        // Selecciona una imagen de la galería
-        final picker = ImagePicker();
-        PickedFile? pickedFile = await picker.getImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        File imageFile = File(pickedFile.path);
+        String userId = user.uid;
+        Reference storageRef = FirebaseStorage.instance.ref().child('user_images/$userId.jpg');
 
-        if (pickedFile != null) {
-          File imageFile = File(pickedFile.path);
+        UploadTask uploadTask = storageRef.putFile(imageFile);
+        TaskSnapshot snapshot = await uploadTask;
 
-          // Sube la imagen al almacenamiento de Firebase Storage
-          UploadTask uploadTask = storageRef.putFile(imageFile);
-          TaskSnapshot snapshot = await uploadTask;
+        String downloadURL = await snapshot.ref.getDownloadURL();
 
-          // Obtén la URL de descarga de la imagen
-          String downloadURL = await snapshot.ref.getDownloadURL();
+        await FirebaseFirestore.instance.collection('usuarios').doc(userId).update({
+          'imagen': downloadURL,
+        });
 
-          // Guarda la URL de la imagen en la base de datos del usuario
-          await FirebaseFirestore.instance.collection('usuarios').doc(userId).update({
-            'imageURL': downloadURL,
-          });
+        setState(() {
+          _imageURL = downloadURL;
+        });
 
-          print('Imagen de perfil actualizada exitosamente');
-        }
-      } catch (e) {
-        print('Error al actualizar la imagen de perfil: $e');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Imagen actualizada'),
+              content: Text('Se ha actualizado la imagen de perfil correctamente.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Aceptar'),
+                ),
+              ],
+            );
+          },
+        );
       }
     }
   }
@@ -118,53 +193,70 @@ class _ConfiguracionesPageState extends State<ConfiguracionesPage> {
   }
   
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Perfil de usuario'),
-      ),
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text('Perfil de usuario'),
+    ),
+    body: SingleChildScrollView(
+      child: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Nombre:',
+              style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+            ),
+            TextField(
+              controller: _nameController,
+            ),
+            SizedBox(height: 16.0),
+            Text(
+              'Contraseña:',
+              style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+            ),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+            ),
+            SizedBox(height: 16.0),
+            Row(
+              children: [
+                Text(
+                  'Imagen de perfil:',
+                  style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(width: 8.0),
+                ElevatedButton(
+                  onPressed: updateUserImage,
+                  child: Text('Actualizar imagen'),
+                ),
+              ],
+            ),
+            SizedBox(height: 8.0),
+            Align(
+              alignment: Alignment.center,
+              child: Container(
+                width: 200.0,
+                height: 200.0,
+                child: _imageURL.isNotEmpty ? Image.network(_imageURL, fit: BoxFit.cover) : Container(),
+              ),
+            ),
 
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Nombre:',
-                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+            SizedBox(height: 16.0),
+
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: ElevatedButton(
+                onPressed: updateProfile,
+                child: Text('Actualizar perfil'),
               ),
-              TextField(
-                controller: _nameController,
-              ),
-              SizedBox(height: 16.0),
-              Text(
-                'Imagen de perfil:',
-                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-              ),
-              _imageURL.isNotEmpty
-                  ? Image.network(
-                      _imageURL,
-                      height: 100.0,
-                    )
-                  : Container(),
-              SizedBox(height: 16.0),
-              ElevatedButton(
-                onPressed: updateUserName,
-                child: Text('Actualizar nombre'),
-              ),
-              ElevatedButton(
-                onPressed: updateUserImage,
-                child: Text('Actualizar imagen de perfil'),
-              ),
-              ElevatedButton(
-                onPressed: updateUserPassword,
-                child: Text('Actualizar contraseña'),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
