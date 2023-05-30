@@ -1,10 +1,13 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
+
+// importaciones firebase
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
 class ConfiguracionesPage extends StatefulWidget {
   const ConfiguracionesPage({super.key});
@@ -14,6 +17,11 @@ class ConfiguracionesPage extends StatefulWidget {
 }
 
 class _ConfiguracionesPageState extends State<ConfiguracionesPage> {
+
+  Map<Locale, String> _flagImages = {
+    Locale('ca', 'ES'): 'ruta_de_la_imagen_de_la_bandera_del_valenciano',
+    Locale('es', 'ES'): 'ruta_de_la_imagen_de_la_bandera_del_castellano',
+  };
 
   TextEditingController _nameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
@@ -243,6 +251,8 @@ Widget build(BuildContext context) {
                 child: _imageURL.isNotEmpty ? Image.network(_imageURL, fit: BoxFit.cover) : Container(),
               ),
             ),
+
+            
 
             SizedBox(height: 16.0),
 

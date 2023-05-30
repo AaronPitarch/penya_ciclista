@@ -7,15 +7,16 @@ class Ruta {
   final int desnivel;
   final int puntos;
   final String imagen;
+  final String googleMapsURL;
 
-  Ruta ({
-  required this.titulo,
-  required this.descripcion,
-  required this.alternativo,
-  required this.fecha,
-  required this.kilometros,
-  required this.desnivel,
-  required this.puntos,
-  required this.imagen
-  });
+  Ruta(
+      {required this.titulo,
+      required this.descripcion,
+      required this.alternativo,
+      required this.fecha,
+      required this.kilometros,
+      required this.desnivel,
+      required this.puntos,
+      required this.imagen,
+      required this.googleMapsURL});
 }

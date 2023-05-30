@@ -18,11 +18,11 @@ class GaleriaPage extends StatefulWidget {
 }
 
 class _GaleriaPageState extends State<GaleriaPage> {
-
   final ImagePicker _imagePicker = ImagePicker();
   final GaleriaService _galeriaService = GaleriaService();
   List<String> _imageUrls = [];
-  final firebase_storage.FirebaseStorage _storage = firebase_storage.FirebaseStorage.instance;
+  final firebase_storage.FirebaseStorage _storage =
+      firebase_storage.FirebaseStorage.instance;
 
   @override
   void initState() {
@@ -36,7 +36,8 @@ class _GaleriaPageState extends State<GaleriaPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Guardar imagen'),
-          content: const Text('¿Deseas guardar la imagen en la galería interna o en la nube?'),
+          content: const Text(
+              '¿Deseas guardar la imagen en la galería interna o en la nube?'),
           actions: <Widget>[
             TextButton(
               child: const Text('Galería interna'),
@@ -71,21 +72,24 @@ class _GaleriaPageState extends State<GaleriaPage> {
 
   Future<void> _subirANube(String imagePath) async {
     final fileName = path.basename(imagePath);
-    final firebase_storage.Reference ref = _storage.ref().child('imagenes/$fileName');
+    final firebase_storage.Reference ref =
+        _storage.ref().child('imagenes/$fileName');
     final metadata = firebase_storage.SettableMetadata(
       contentType: 'image/jpeg',
     );
     final uploadTask = ref.putFile(File(imagePath), metadata);
     final snapshot = await uploadTask.whenComplete(() {});
-      if (snapshot.state == firebase_storage.TaskState.success) {
-        // Imagen subida exitosamente
-        print('Imagen subida correctamente');
-        // Obtener la URL de descarga de la imagen
-        final downloadUrl = await ref.getDownloadURL();
-        print('URL de descarga: $downloadUrl');
-      } else {
-        // Error al subir la imagen
-        print('Error al subir la imagen');
+    if (snapshot.state == firebase_storage.TaskState.success) {
+      // Imagen subida exitosamente
+      print('Imagen subida correctamente');
+      // Obtener la URL de descarga de la imagen
+      final downloadUrl = await ref.getDownloadURL();
+      print('URL de descarga: $downloadUrl');
+      // Cargar imagenes actualizadas
+      await _cargarImagenes();
+    } else {
+      // Error al subir la imagen
+      print('Error al subir la imagen');
     }
   }
 
@@ -126,7 +130,6 @@ class _GaleriaPageState extends State<GaleriaPage> {
         title: const Text('Galeria de Fotos'),
         centerTitle: true,
       ),
-
       body: StaggeredGridView.countBuilder(
         crossAxisCount: 2,
         itemCount: _imageUrls.length,
@@ -147,10 +150,10 @@ class _GaleriaPageState extends State<GaleriaPage> {
         mainAxisSpacing: 4.0,
         crossAxisSpacing: 4.0,
       ),
-
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final image = await _imagePicker.pickImage(source: ImageSource.camera);
+          final image =
+              await _imagePicker.pickImage(source: ImageSource.camera);
           if (image != null) {
             await _mostrarDialogoGuardarImagen(image.path);
           }
@@ -158,7 +161,6 @@ class _GaleriaPageState extends State<GaleriaPage> {
         child: const Icon(Icons.camera),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-    
     );
   }
 }

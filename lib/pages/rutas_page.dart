@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:penya_ciclista/models/ruta_mode.dart';
 import 'package:penya_ciclista/services/ruta_service.dart';
 
-
 class RutasPage extends StatelessWidget {
   const RutasPage({super.key});
 
@@ -13,7 +12,6 @@ class RutasPage extends StatelessWidget {
         title: const Text('Rutas'),
         centerTitle: true,
       ),
-
       body: Container(
         child: FutureBuilder<List<Ruta>>(
           future: RutasService.getAllRutas(),
@@ -35,7 +33,8 @@ class RutasPage extends StatelessWidget {
                             Flexible(
                               child: Text(
                                 ruta.titulo,
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -61,7 +60,8 @@ class RutasPage extends StatelessWidget {
                               ruta.imagen,
                               height: 200,
                               fit: BoxFit.cover,
-                              errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                              errorBuilder: (BuildContext context,
+                                  Object exception, StackTrace? stackTrace) {
                                 return const Text('Error al cargar la imagen');
                               },
                             ),
@@ -75,15 +75,11 @@ class RutasPage extends StatelessWidget {
                             Expanded(
                               child: Text('KM: ${ruta.kilometros}'),
                             ),
-
                             const SizedBox(width: 16),
-              
                             Expanded(
-                              child: Text('DESNIVELL: ${ruta.desnivel}'), 
+                              child: Text('DESNIVELL: ${ruta.desnivel}'),
                             ),
-
                             const SizedBox(width: 16),
-                        
                             Expanded(
                               child: Text('PUNTOS: ${ruta.puntos}'),
                             ),
